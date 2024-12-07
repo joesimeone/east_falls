@@ -1,0 +1,147 @@
+---
+title: "Untitled"
+format: 
+  dashboard:
+    embed-resources: true
+---
+
+
+```{r}
+#| label: "load libraries & import"
+#| include: false
+
+
+library(sysfonts)
+library(tidyverse)
+library(here)
+library(showtext)
+library(rcartocolor)
+library(extrafont)
+
+
+## Look through directories
+east_falls_files <- 
+  list.files(here("data"),
+             pattern = "east_falls",
+             full.names = TRUE)
+
+## Narrow to R objects
+east_falls_files <- 
+  east_falls_files[grep("csv", 
+                   east_falls_files, 
+                   invert = TRUE)]
+
+## Look through directories
+phl_files <-
+  list.files(here("data"),
+             pattern = "phl_",
+             full.names = TRUE)
+
+## Narrow to R Objects  
+phl_files <- 
+  phl_files[grep("csv", 
+            phl_files, 
+            invert = TRUE)]
+
+
+## Import 
+east_falls <-
+  map(east_falls_files, 
+      ~readRDS(.x))
+
+philly <-
+  map(phl_files, readRDS)
+
+
+## Name my lists
+list_names <- c("edu", "income", "race", "sex_age")
+
+names(east_falls) <- list_names
+names(philly) <- list_names
+
+```
+
+```{r}
+#| label: "lol"
+#| echo: false
+
+   joes_dumb_theme <-
+      theme(panel.background = 
+              element_rect(fill = "#3b3b3b"),
+              element_line(element_blank()),
+              panel.grid.major = element_blank(),
+              panel.grid.minor = element_blank(),
+              axis.line = element_line(color = "lightgray"),
+              axis.text = element_text(color = "lightgray"),
+              axis.title = element_text(color = "lightgray"),
+              plot.background = 
+                element_rect("#3b3b3b"),
+              panel.border = element_blank(),
+              legend.position = "none",
+              text = element_text(family = "inter",
+                                  size = 12)) 
+
+theme_set(joes_dumb_theme)
+
+
+
+```
+
+```{r}
+
+sex_by_age_cl <-
+  east_falls$sex_age %>%
+  filter(!is.na(broader_age_groups) &
+           broader_age_groups != "") %>%
+  mutate(broader_age_groups =
+           fct_relevel(broader_age_groups,
+                       c("17 & Under", "18 - 34",
+                         "35 - 54", "55 - 74",  "75 & Over")),
+          graph_est =
+           if_else(gender == "Female",
+                   -estimate, estimate))
+
+## Graph elements
+abs_axis <- c(-2000, -1000, 0, 1000, 2000)
+fill_colors <- c("#BEBADA", "#FDB462")
+
+font_add_google(name = "Source Sans Pro", family = "inter")
+showtext_auto()
+ggplot(sex_by_age_cl, aes(graph_est, broader_age_groups, fill = gender)) +
+  geom_col() +
+  scale_fill_manual(values = fill_colors) +
+  scale_x_continuous(breaks = abs_axis,
+                     labels = abs(abs_axis)) + 
+  labs(y = "Age Group", 
+               x = "Count")
+
+```
+
+```{r}
+#| label: rawr
+library(rcartocolor)
+ggplot(east_falls$income, aes(x = estimate, y = income_bracket, fill = income_bracket)) +
+  geom_col() + # or geom_bar(stat = "identity") depending on your data
+scale_fill_carto_d(palette = "Purp")
+```
+```{r}
+#| include: false
+a <- ggplot(east_falls$edu, aes(estimate, edu_level, fill = edu_level)) +
+geom_col() +
+scale_fill_brewer(palette = "Oranges")
+```
+
+```{r}
+#| label: "hmm"
+#| echo: false 
+
+plotly::ggplotly(a)
+```
+
+
+```{r}
+ggplot(east_falls$race, aes(estimate, racial_category, fill = racial_category)) +
+geom_col() +
+scale_fill_brewer(palette = "Set3")
+```
+
