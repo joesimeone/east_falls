@@ -76,6 +76,6 @@ co_race_breakdowns_cl <-
 ## -----------------------------------------------------------------------------
 
 
-write_csv(race_breakdowns_cl, "data/east_falls_race_cats.csv")
-write_csv(co_race_breakdowns_cl, "data/phl_county_race_cats.csv")
+saveRDS(race_breakdowns_cl, "data/east_falls_race_cats.R")
+saveRDS(co_race_breakdowns_cl, "data/phl_county_race_cats.R")
 

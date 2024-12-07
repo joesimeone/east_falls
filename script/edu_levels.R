@@ -92,8 +92,8 @@ co_edu_cl <-
 ## -----------------------------------------------------------------------------
 
 
-write_csv(edu_cl, "data/east_falls_edu_level.csv")
-write_csv(co_edu_cl, "data/phl_county_edu_level.csv")
+saveRDS(edu_cl, "data/east_falls_edu_level.R")
+saveRDS(co_edu_cl, "data/phl_county_edu_level.R")
 
 # ggplot(edu_cl, aes(estimate, edu_level, fill = edu_level)) +
 #  geom_col(fill = "#d8527c")

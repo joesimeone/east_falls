@@ -89,8 +89,8 @@ co_income_cl <-
 ## -----------------------------------------------------------------------------
 # Export Tables -----
 ## -----------------------------------------------------------------------------
-write_csv(income_cl, "data/east_falls_income_level.csv")
-write_csv(co_income_cl, "data/phl_county_income_level.csv")
+saveRDS(income_cl, "data/east_falls_income_level.R")
+saveRDS(co_income_cl, "data/phl_county_income_level.R")
 
 
 

@@ -104,8 +104,8 @@ co_sex_by_age_cl <-
 ## -----------------------------------------------------------------------------
 # Export Tables -----
 ## -----------------------------------------------------------------------------
-write_csv(co_sex_by_age_cl, "data/phl_county_sex_age_level.csv")
-write_csv(sex_by_age_cl, "data/east_falls_sex_age_level.csv")
+saveRDS(co_sex_by_age_cl, "data/phl_county_sex_age_level.R")
+saveRDS(sex_by_age_cl, "data/east_falls_sex_age_level.R")
 
 
 
