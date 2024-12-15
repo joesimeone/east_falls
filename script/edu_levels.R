@@ -4,7 +4,7 @@ library(tidyverse)
 
 
 
-acs_vars <- load_variables(2022, "acs5")
+acs_vars <- load_variables(2023, "acs5")
 
 
 ## -----------------------------------------------------------------------------
@@ -23,7 +23,7 @@ edu_codes <- glue::glue("B06009_{acs_code_trails}")
 edu_status <- tidycensus::get_acs(
   geography = "zcta",
   zcta = "19129",
-  year = 2022,
+  year = 2023,
   variables = edu_codes,
   geometry = FALSE
   )
@@ -33,7 +33,7 @@ co_edu_status <- tidycensus::get_acs(
   geography = "county",
   state = "PA",
   county = "Philadelphia",
-  year = 2022,
+  year = 2023,
   variables = edu_codes,
   geometry = FALSE
 )

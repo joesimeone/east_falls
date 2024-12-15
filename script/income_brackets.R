@@ -4,7 +4,7 @@ library(tidyverse)
 
 
 
-acs_vars <- load_variables(2022, "acs5")
+acs_vars <- load_variables(2023, "acs5")
 
 
 ## -----------------------------------------------------------------------------
@@ -25,7 +25,7 @@ income_brackets <-
   tidycensus::get_acs(
   geography = "zcta",
   zcta = "19129",
-  year = 2022,
+  year = 2023,
   variables = income_bracket_codes,
   geometry = FALSE
 )
@@ -35,7 +35,7 @@ co_income_brackets <- tidycensus::get_acs(
   geography = "county",
   state = "PA",
   county = "Philadelphia",
-  year = 2022,
+  year = 2023,
   variables = income_bracket_codes,
   geometry = FALSE
 )

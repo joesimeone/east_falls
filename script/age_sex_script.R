@@ -4,7 +4,7 @@ library(tidyverse)
 
 
 
-acs_vars <- load_variables(2022, "acs5")
+acs_vars <- load_variables(2023, "acs5")
 
 ## -----------------------------------------------------------------------------
 # Variable Call Prep ----
@@ -22,7 +22,7 @@ sex_by_age_codes <- glue::glue("B01001_{acs_code_trails}")
 sex_by_age <- tidycensus::get_acs(
   geography = "zcta",
   zcta = "19129",
-  year = 2022,
+  year = 2023,
   variables = sex_by_age_codes,
   geometry = FALSE
 )
@@ -33,7 +33,7 @@ co_sex_by_age <- tidycensus::get_acs(
   geography = "county",
   state = "PA",
   county = "Philadelphia",
-  year = 2022,
+  year = 2023,
   variables = sex_by_age_codes,
   geometry = FALSE
 )
