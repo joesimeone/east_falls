@@ -3,6 +3,8 @@ title: "Untitled"
 format: 
   dashboard:
     embed-resources: true
+    scrolling: true
+    
 ---
 
 
@@ -10,7 +12,7 @@ format:
 #| label: "load libraries & import"
 #| include: false
 
-
+library(rcartocolor)
 library(sysfonts)
 library(tidyverse)
 library(here)
@@ -65,6 +67,9 @@ names(philly) <- list_names
 #| label: "lol"
 #| echo: false
 
+font_add_google(name = "Source Sans Pro", family = "inter")
+showtext_auto()
+
    joes_dumb_theme <-
       theme(panel.background = 
               element_rect(fill = "#3b3b3b"),
@@ -87,7 +92,15 @@ theme_set(joes_dumb_theme)
 
 ```
 
+# Data {orientation="rows" scrolling="true"}
+
+## Age & Sex
+
+### East Falls {width="50%"}
 ```{r}
+#| title: "Oh Noo, what are thoseeeee"
+#| fig-width: 8
+#| fig-height: 6
 
 sex_by_age_cl <-
   east_falls$sex_age %>%
@@ -105,8 +118,19 @@ sex_by_age_cl <-
 abs_axis <- c(-2000, -1000, 0, 1000, 2000)
 fill_colors <- c("#BEBADA", "#FDB462")
 
-font_add_google(name = "Source Sans Pro", family = "inter")
-showtext_auto()
+
+ggplot(sex_by_age_cl, aes(graph_est, broader_age_groups, fill = gender)) +
+  geom_col() +
+  scale_fill_manual(values = fill_colors) +
+  scale_x_continuous(breaks = abs_axis,
+                     labels = abs(abs_axis)) + 
+  labs(y = "Age Group", 
+       x = "Estimate")
+
+```
+
+### Phl {width="50%"}
+```{r}
 ggplot(sex_by_age_cl, aes(graph_est, broader_age_groups, fill = gender)) +
   geom_col() +
   scale_fill_manual(values = fill_colors) +
@@ -114,16 +138,24 @@ ggplot(sex_by_age_cl, aes(graph_est, broader_age_groups, fill = gender)) +
                      labels = abs(abs_axis)) + 
   labs(y = "Age Group", 
                x = "Count")
-
 ```
 
+## Income
+
+### East Falls {width="50%"}
 ```{r}
 #| label: rawr
-library(rcartocolor)
-ggplot(east_falls$income, aes(x = estimate, y = income_bracket, fill = income_bracket)) +
-  geom_col() + # or geom_bar(stat = "identity") depending on your data
+
+ggplot(east_falls$income, 
+       aes(x = estimate, 
+           y = income_bracket, 
+           fill = income_bracket)) +
+        geom_col() + 
+        labs(y="") +
 scale_fill_carto_d(palette = "Purp")
 ```
+
+### Phl {Width="50%}
 ```{r}
 #| include: false
 a <- ggplot(east_falls$edu, aes(estimate, edu_level, fill = edu_level)) +
@@ -132,12 +164,39 @@ scale_fill_brewer(palette = "Oranges")
 ```
 
 ```{r}
+#| label: come on 
+library(rcartocolor)
+ggplot(east_falls$income, aes(x = estimate, y = income_bracket, fill = income_bracket)) +
+  geom_col() + # or geom_bar(stat = "identity") depending on your data
+scale_fill_carto_d(palette = "Purp")
+```
+## Education 
+
+### East Falls {width="50%"}
+```{r}
 #| label: "hmm"
 #| echo: false 
 
 plotly::ggplotly(a)
 ```
+### Phl {width="50%"}
+```{r}
+#| label: "why"
+#| echo: false 
 
+plotly::ggplotly(a)
+```
+
+
+## Race & Ethnicity
+
+### East falls {width="50%"}
+```{r}
+ggplot(east_falls$race, aes(estimate, racial_category, fill = racial_category)) +
+geom_col() +
+scale_fill_brewer(palette = "Set3")
+```
+### Phl {width="50%"}
 
 ```{r}
 ggplot(east_falls$race, aes(estimate, racial_category, fill = racial_category)) +
