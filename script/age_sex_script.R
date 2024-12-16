@@ -71,7 +71,9 @@ sex_by_age_cl <-
              TRUE ~ age),
          broader_age_groups = as.factor(broader_age_groups),
          gender = as.factor(gender)
-  )
+                    ) %>% 
+  filter(variable != "B01001_001" & !is.na(broader_age_groups) &
+           broader_age_groups != "")
 
 ## PHL County
 co_sex_by_age_cl <- 
@@ -99,7 +101,9 @@ co_sex_by_age_cl <-
              TRUE ~ age),
          broader_age_groups = as.factor(broader_age_groups),
          gender = as.factor(gender)
-  )                       
+                      ) %>% 
+  filter(variable != "B01001_001" & !is.na(broader_age_groups) &
+           broader_age_groups != "") 
 
 ## -----------------------------------------------------------------------------
 # Export Tables -----

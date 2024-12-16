@@ -54,7 +54,7 @@ race_breakdowns_cl <-
            sep = "[:!!]+", 
            extra = "merge", 
            fill = "right") %>% 
-  filter(estimate != 0)
+  filter(estimate != 0 & racial_category != "")
 
 
 co_race_breakdowns_cl <- 
@@ -68,7 +68,7 @@ co_race_breakdowns_cl <-
            sep = "[:!!]+", 
            extra = "merge", 
            fill = "right") %>% 
-  filter(estimate != 0)
+  filter(estimate != 0 & racial_category != "")
 
 
 ## -----------------------------------------------------------------------------
