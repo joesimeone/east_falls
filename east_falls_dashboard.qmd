@@ -19,6 +19,7 @@ library(here)
 library(showtext)
 library(rcartocolor)
 library(extrafont)
+library(plotly)
 
 
 ## Look through directories
@@ -92,9 +93,17 @@ theme_set(joes_dumb_theme)
 
 ```
 
+
+```{r}
+#| label: Import summary tables script
+#| include: false
+
+source("helper_scripts/east_falls_phl_calcs.R")
+```
+
 # Data {orientation="rows" scrolling="true"}
 
-## Age & Sex
+## Age & Sex {height="25%"}
 
 ### East Falls {width="50%"}
 ```{r}
@@ -103,23 +112,30 @@ theme_set(joes_dumb_theme)
 #| fig-height: 6
 
 sex_by_age_cl <-
-  east_falls$sex_age %>%
-  filter(!is.na(broader_age_groups) &
-           broader_age_groups != "") %>%
+  east_falls_tbls$sex_age %>%
+  group_by(broader_age_groups, gender) %>% 
+  summarise(across(is.numeric,
+                   ~(sum(.)))) %>% 
+  distinct(broader_age_groups, gender, 
+           .keep_all = TRUE) %>% 
   mutate(broader_age_groups =
            fct_relevel(broader_age_groups,
                        c("17 & Under", "18 - 34",
                          "35 - 54", "55 - 74",  "75 & Over")),
           graph_est =
            if_else(gender == "Female",
-                   -estimate, estimate))
+                   -east_falls_est, east_falls_est))
 
 ## Graph elements
 abs_axis <- c(-2000, -1000, 0, 1000, 2000)
 fill_colors <- c("#BEBADA", "#FDB462")
 
 
-ggplot(sex_by_age_cl, aes(graph_est, broader_age_groups, fill = gender)) +
+age_sex_graph <-
+  ggplot(sex_by_age_cl,
+         aes(graph_est, 
+             broader_age_groups, 
+             fill = gender)) +
   geom_col() +
   scale_fill_manual(values = fill_colors) +
   scale_x_continuous(breaks = abs_axis,
@@ -127,68 +143,140 @@ ggplot(sex_by_age_cl, aes(graph_est, broader_age_groups, fill = gender)) +
   labs(y = "Age Group", 
        x = "Estimate")
 
+age_sex_graph
+
 ```
 
 ### Phl {width="50%"}
 ```{r}
-ggplot(sex_by_age_cl, aes(graph_est, broader_age_groups, fill = gender)) +
+ggplot(sex_by_age_cl, 
+       aes(graph_est,
+           broader_age_groups, 
+           fill = gender)) +
   geom_col() +
   scale_fill_manual(values = fill_colors) +
   scale_x_continuous(breaks = abs_axis,
                      labels = abs(abs_axis)) + 
   labs(y = "Age Group", 
-               x = "Count")
+       x = "Estimate")
 ```
 
-## Income
+
+## Income {height="25%"}
 
 ### East Falls {width="50%"}
 ```{r}
 #| label: rawr
+#| echo: false
+#| fig.width: 7
+#| fig.height: 5
 
-ggplot(east_falls$income, 
-       aes(x = estimate, 
+income_graph <-
+  ggplot(east_falls_tbls$income, 
+       aes(x = east_falls_est, 
            y = income_bracket, 
            fill = income_bracket)) +
-        geom_col() + 
-        labs(y="") +
-scale_fill_carto_d(palette = "Purp")
+  geom_col() + 
+  labs(y = "") +
+  scale_fill_carto_d(palette = "Purp")
+  
+  ggplotly(income_graph)
 ```
 
 ### Phl {Width="50%}
-```{r}
-#| include: false
-a <- ggplot(east_falls$edu, aes(estimate, edu_level, fill = edu_level)) +
-geom_col() +
-scale_fill_brewer(palette = "Oranges")
-```
+
 
 ```{r}
 #| label: come on 
-library(rcartocolor)
-ggplot(east_falls$income, aes(x = estimate, y = income_bracket, fill = income_bracket)) +
-  geom_col() + # or geom_bar(stat = "identity") depending on your data
-scale_fill_carto_d(palette = "Purp")
+#| fig-width: 8
+#| fig-height: 6 
+
+phl_east_falls_inc <-
+  phl_east_falls$income %>% 
+   pivot_longer(cols = c("est_pct", "phl_est_pct"), 
+                values_to = "percentages",
+                names_to = "calcs") %>% 
+  mutate(calc_labels = 
+           if_else(calcs == "phl_est_pct",
+                   "Philadelphia", "East Falls")) %>% 
+  ggplot(aes(percentages, income_bracket)) +
+  geom_line() +
+  geom_point(aes(color = calc_labels), size = 3) +
+  scale_x_continuous(labels = scales::percent)  +
+  scale_color_manual(values = c("#C19FE0", "lightgray"),
+                     labels = c("East Falls", "Philadelphia CO.")) +
+  theme(legend.position = "bottom",
+        legend.background = element_rect(fill = "#3b3b3b",
+                                         color = "#3b3b3b"),
+        legend.text = element_text(color = "lightgray"),
+        legend.title = element_text(color = "lightgray")) +
+  labs(color='City Comparison',
+       y = "",
+       x = "Percentage")
+  
+ ggplotly(phl_east_falls_inc)
+  
+
 ```
-## Education 
+## Education {height="25%"}
 
 ### East Falls {width="50%"}
+
+```{r}
+#| include: false
+
+
+edu_graph <- 
+  ggplot(east_falls$edu, 
+         aes(estimate, 
+             edu_level, 
+             fill = edu_level)
+         ) +
+  geom_col() +
+  labs(y = "") +
+  scale_fill_brewer(palette = "Oranges")
+```
+
 ```{r}
 #| label: "hmm"
 #| echo: false 
 
-plotly::ggplotly(a)
+plotly::ggplotly(edu_graph)
 ```
 ### Phl {width="50%"}
 ```{r}
 #| label: "why"
 #| echo: false 
 
-plotly::ggplotly(a)
+phl_east_falls_edu <-
+  phl_east_falls$edu %>% 
+   pivot_longer(cols = c("est_pct", "phl_est_pct"), 
+                values_to = "percentages",
+                names_to = "calcs") %>% 
+  mutate(calc_labels = 
+           if_else(calcs == "phl_est_pct",
+                   "Philadelphia", "East Falls")) %>% 
+  ggplot(aes(percentages, edu_level)) +
+  geom_line() +
+  geom_point(aes(color = calc_labels), size = 3) +
+  scale_x_continuous(labels = scales::percent)  +
+  scale_color_manual(values = c("#F16913", "lightgray"),
+                     labels = c("East Falls", "Philadelphia CO.")) +
+  theme(legend.position = "bottom",
+        legend.background = element_rect(fill = "#3b3b3b",
+                                         color = "#3b3b3b"),
+        legend.text = element_text(color = "lightgray"),
+        legend.title = element_text(color = "lightgray")) +
+  labs(color='City Comparison',
+       y = "",
+       x = "Percentage")
+  
+ ggplotly(phl_east_falls_edu)
+
 ```
 
 
-## Race & Ethnicity
+## Race & Ethnicity {height="25%"}
 
 ### East falls {width="50%"}
 ```{r}
@@ -199,8 +287,30 @@ scale_fill_brewer(palette = "Set3")
 ### Phl {width="50%"}
 
 ```{r}
-ggplot(east_falls$race, aes(estimate, racial_category, fill = racial_category)) +
-geom_col() +
-scale_fill_brewer(palette = "Set3")
+phl_east_falls_race <-
+  phl_east_falls$race %>% 
+   pivot_longer(cols = c("est_pct", "phl_est_pct"), 
+                values_to = "percentages",
+                names_to = "calcs") %>% 
+  mutate(calc_labels = 
+           if_else(calcs == "phl_est_pct",
+                   "Philadelphia", "East Falls")) %>% 
+  ggplot(aes(percentages, racial_category)) +
+  geom_line() +
+  geom_point(aes(color = calc_labels), size = 3) +
+  scale_x_continuous(labels = scales::percent)  +
+  scale_color_manual(values = c("#80B1D3", "lightgray"),
+                     labels = c("East Falls", "Philadelphia CO.")) +
+  theme(legend.position = "bottom",
+        legend.background = element_rect(fill = "#3b3b3b",
+                                         color = "#3b3b3b"),
+        legend.text = element_text(color = "lightgray"),
+        legend.title = element_text(color = "lightgray")) +
+  labs(color='City Comparison',
+       y = "",
+       x = "Percentage")
+  
+ ggplotly(phl_east_falls_race)
+ 
 ```
 
